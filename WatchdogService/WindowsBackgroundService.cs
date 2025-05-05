@@ -1,7 +1,9 @@
+using LibWatchdog;
+
 namespace App.WindowsService;
 
 public sealed class WindowsBackgroundService(
-    JokeService jokeService,
+    WatchdogImpl watchdogImpl,
     ILogger<WindowsBackgroundService> logger) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -10,10 +12,20 @@ public sealed class WindowsBackgroundService(
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                string joke = jokeService.GetJoke();
-                logger.LogWarning("{Joke}", joke);
+                if (watchdogImpl.ShouldReboot())
+                {
+                    logger.LogWarning("Should reboot");
+                    Reboot();
+                }
+                else
+                {
+                    logger.LogWarning("Should not reboot");
+                }
 
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                // For debugging I don't want to have to keep waiting a minute
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+
+                // await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
         catch (OperationCanceledException)
@@ -35,5 +47,34 @@ public sealed class WindowsBackgroundService(
             // recovery options, we need to terminate the process with a non-zero exit code.
             Environment.Exit(1);
         }
+    }
+
+    private void Reboot()
+    {
+        logger.LogWarning("Rebooting the system");
+
+        string sentinel = "C:\\WatchdogRebootSentinel.txt";
+        if (File.Exists(sentinel))
+        {
+            logger.LogWarning($"Reboot prevented by file {sentinel}");
+            return;
+        }
+
+        // If the sentinel file doesn't exist we'll reboot, but create a new one to prevent repeated reboots
+        File.Create(sentinel).Dispose(); // Dispose ensures the file handle is released
+
+        // This is commented out for debugging purposes, so we don't actually reboot the system
+        logger.LogDebug("Reboot commented out");
+        //var process = new Process
+        //{
+        //    StartInfo = new ProcessStartInfo
+        //    {
+        //        FileName = "shutdown",
+        //        Arguments = "/r /t 0",
+        //        RedirectStandardOutput = true,
+        //        UseShellExecute = false,
+        //        CreateNoWindow = true,
+        //    }
+        //};
     }
 }
