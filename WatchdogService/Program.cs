@@ -18,6 +18,7 @@ public class Program
 
         LoggerProviderOptions.RegisterProviderOptions<EventLogSettings, EventLogLoggerProvider>(builder.Services);
 
+        builder.Services.AddSingleton<IFileSystem, FileSystem>();
         builder.Services.AddSingleton<WatchdogImpl>();
         builder.Services.AddHostedService<WindowsBackgroundService>();
         var host = builder.Build();

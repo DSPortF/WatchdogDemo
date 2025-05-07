@@ -19,11 +19,12 @@ public sealed class WindowsBackgroundService(
                 }
                 else
                 {
+                    // Temporarily here for debug; will remove at some point
                     logger.LogWarning("Should not reboot");
                 }
 
                 // For debugging I don't want to have to keep waiting a minute
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
 
                 // await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
@@ -64,7 +65,7 @@ public sealed class WindowsBackgroundService(
         File.Create(sentinel).Dispose(); // Dispose ensures the file handle is released
 
         // This is commented out for debugging purposes, so we don't actually reboot the system
-        logger.LogDebug("Reboot commented out");
+        logger.LogWarning("Reboot commented out");
         //var process = new Process
         //{
         //    StartInfo = new ProcessStartInfo
