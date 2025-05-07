@@ -12,7 +12,7 @@ public sealed class WindowsBackgroundService(
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (watchdogImpl.ShouldReboot())
+                if (watchdogImpl.ShouldReboot(DateTime.Now))
                 {
                     logger.LogWarning("Should reboot");
                     Reboot();
