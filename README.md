@@ -58,3 +58,10 @@ Ideally this would be in config but we'll just hardcode 0100-0400.
 
 NB: If ShouldReboot() checks DateTime.Now directly then this means automated tests will be time dependent. Therefore we have pass in the current time.  
 
+
+### This demo is complete.
+
+I wanted to show:  
+- How I have been using interfaces and mocks to ensure the code works correctly;
+- How I use simple and obvious naming for variables and functions;
+- The workflow, hence this README instead of GitHub issue tracking.
